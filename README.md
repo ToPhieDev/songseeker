@@ -20,3 +20,8 @@ https://github.com/andygruber/songseeker-card-generator
 ```
 docker build -t songseeker -f .\imagebuild\Dockerfile .
 ```
+
+
+### Hosting without docker
+1. Copy files from this repo onto webserver
+2. Copy files from https://github.com/andygruber/songseeker-hitster-playlists onto webserver
