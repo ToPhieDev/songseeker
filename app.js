@@ -11,13 +11,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastDecodedText = ""; // Store the last decoded text
 
     const video = document.getElementById('qr-video');
-    const resultContainer = document.getElementById("qr-reader-results");
 
     qrScanner = new QrScanner(video, result => {
         console.log('decoded qr code:', result);
         if (result.data !== lastDecodedText) {
             lastDecodedText = result.data; // Update the last decoded text
-            handleScannedLink(result.data);
+            handleScannedLink(result.data).then();
         }
     }, { 
         highlightScanRegion: true,
@@ -57,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const youtubeLinkData = parseYoutubeLink(youtubeURL);
         if (youtubeLinkData) {
             qrScanner.stop(); // Stop scanning after a result is found
+            document.getElementById('scan-modal').style.display = 'none'; // Hide the modal after successful scan
             document.getElementById('qr-reader').style.display = 'none'; // Hide the scanner after successful scan
             document.getElementById('cancelScanButton').style.display = 'none'; // Hide the cancel-button
             lastDecodedText = ""; // Reset the last decoded text
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!timeValue) return null; // Return null if timeValue is falsy
     
         // Handle time formats (e.g., 't=1m15s' or '75s')
-        let seconds = 0;
+        let seconds;
         if (timeValue.endsWith('s')) {
             seconds = parseInt(timeValue, 10);
         } else {
@@ -197,7 +197,7 @@ function onYouTubeIframeAPIReady() {
         width: '0',
         events: {
             'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
+            'onStateChange': onPlayerStateChange,
         }
     });
 }
@@ -217,17 +217,18 @@ function onPlayerReady(event) {
 
 // Display video information when it's cued
 function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.CUED) {
-        document.getElementById('startstop-video').style.background = "green";
+    document.getElementById('startstop-video').style.display = "flex";
+
+    if (event.data === YT.PlayerState.CUED) {
         // Display title and duration
-        var videoData = player.getVideoData();
+        const videoData = player.getVideoData();
         document.getElementById('video-title').textContent = videoData.title;
-        var duration = player.getDuration();
+        const duration = player.getDuration();
         document.getElementById('video-duration').textContent = formatDuration(duration);
         // Check for Autoplay
-        if (document.getElementById('autoplay').checked == true) {
-            document.getElementById('startstop-video').innerHTML = "Stop";
-            if (document.getElementById('randomplayback').checked == true) {
+        if (document.getElementById('autoplay').checked === true) {
+            document.getElementById('startstop-text').innerHTML = "Stop";
+            if (document.getElementById('randomplayback').checked === true) {
                 playVideoAtRandomStartTime();
             }
             else {
@@ -235,29 +236,32 @@ function onPlayerStateChange(event) {
             }
         }
     }
-    else if (event.data == YT.PlayerState.PLAYING) {
-        document.getElementById('startstop-video').style.background = "red";
+    else if (event.data === YT.PlayerState.PLAYING) {
+        document.getElementById('startstop-video').style.display = "flex";
+        document.getElementById('loadingVideo').style.display = "none";
+
     }
-    else if (event.data == YT.PlayerState.PAUSED | event.data == YT.PlayerState.ENDED) {
-        document.getElementById('startstop-video').style.background = "green";
+    else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+        document.getElementById('startstop-video').style.display = "flex";
     }
-    else if (event.data == YT.PlayerState.BUFFERING) {
-        document.getElementById('startstop-video').style.background = "orange";
-    }
+    else if (event.data === YT.PlayerState.BUFFERING) {
+        document.getElementById('loadingVideo').style.display = "block";
+    } 
 }
 
 // Helper function to format duration from seconds to a more readable format
 function formatDuration(duration) {
-    var minutes = Math.floor(duration / 60);
-    var seconds = duration % 60;
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }
 
 // Add event listeners to Play and Stop buttons
 document.getElementById('startstop-video').addEventListener('click', function() {
-    if (this.innerHTML == "Play") {
-        this.innerHTML = "Stop";
-        if (document.getElementById('randomplayback').checked == true) {
+    const textElem = document.getElementById("startstop-text")
+    if (textElem.innerHTML === "Play") {
+        textElem.innerHTML = "Stop";
+        if (document.getElementById('randomplayback').checked === true) {
             playVideoAtRandomStartTime();
         }
         else {
@@ -269,6 +273,13 @@ document.getElementById('startstop-video').addEventListener('click', function() 
         player.pauseVideo();
     }
 });
+
+function writeCopyrightYear() {
+    const date = new Date();
+    document.getElementById('copyrightYear').textContent = date.getFullYear().toString();
+}
+
+window.onload = ()=> writeCopyrightYear();
 
 function playVideoAtRandomStartTime() {
     const minStartPercentage = 0.10;
@@ -305,15 +316,20 @@ function playVideoAtRandomStartTime() {
     // Schedule video stop after the specified duration
     playbackTimer = setTimeout(() => {
         player.pauseVideo();
-        document.getElementById('startstop-video').innerHTML = "Play";
+        document.getElementById('startstop-text').innerHTML = "Play";
     }, (endTime - startTime) * 1000); // Convert to milliseconds
 }
+
+document.getElementById('randomplayback').addEventListener('change', function() {
+    document.getElementById('duration-input').style.display = this.checked ? 'block' : 'none';
+});
 
 // Assuming you have an element with the ID 'qr-reader' for the QR scanner
 document.getElementById('qr-reader').style.display = 'none'; // Initially hide the QR Scanner
 
 document.getElementById('startScanButton').addEventListener('click', function() {
-    document.getElementById('cancelScanButton').style.display = 'block';
+    document.getElementById('cancelScanButton').style.display = 'inline-flex';
+    document.getElementById('scan-modal').style.display = 'grid'; // Show the modal
     document.getElementById('qr-reader').style.display = 'block'; // Show the scanner
     qrScanner.start().catch(err => {
         console.error('Unable to start QR Scanner', err);
@@ -326,11 +342,11 @@ document.getElementById('startScanButton').addEventListener('click', function() 
 });
 
 document.getElementById('songinfo').addEventListener('click', function() {
-    var cb = document.getElementById('songinfo');
-    var videoid = document.getElementById('videoid');
-    var videotitle = document.getElementById('videotitle');
-    var videoduration = document.getElementById('videoduration');
-    if(cb.checked == true){
+    const cb = document.getElementById('songinfo');
+    const videoid = document.getElementById('videoid');
+    const videotitle = document.getElementById('videotitle');
+    const videoduration = document.getElementById('videoduration');
+    if(cb.checked === true){
         videoid.style.display = 'block';
         videotitle.style.display = 'block';
         videoduration.style.display = 'block';
@@ -347,16 +363,6 @@ document.getElementById('cancelScanButton').addEventListener('click', function()
     document.getElementById('cancelScanButton').style.display = 'none'; // Hide the cancel-button
 });
 
-document.getElementById('cb_settings').addEventListener('click', function() {
-    var cb = document.getElementById('cb_settings');
-    if (cb.checked == true) {
-        document.getElementById('settings_div').style.display = 'block';
-    }
-    else {
-        document.getElementById('settings_div').style.display = 'none';
-    }
-});
-
 document.getElementById('randomplayback').addEventListener('click', function() {
     document.cookie = "RandomPlaybackChecked=" + this.checked + ";max-age=2592000"; //30 Tage
     listCookies();
@@ -368,8 +374,8 @@ document.getElementById('autoplay').addEventListener('click', function() {
 });
 
 document.getElementById('cookies').addEventListener('click', function() {
-    var cb = document.getElementById('cookies');
-    if (cb.checked == true) {
+    const cb = document.getElementById('cookies');
+    if (cb.checked === true) {
         document.getElementById('cookielist').style.display = 'block';
     }
     else {
@@ -378,8 +384,7 @@ document.getElementById('cookies').addEventListener('click', function() {
 });
 
 function listCookies() {
-    var result = document.cookie;
-    document.getElementById("cookielist").innerHTML=result;
+    document.getElementById("cookielist").innerHTML=document.cookie;
  }
 
 function getCookieValue(name) {
@@ -391,16 +396,16 @@ function getCookieValue(name) {
 }
 
 function getCookies() {
-    var isTrueSet;
-    if (getCookieValue("RandomPlaybackChecked") != "") {
+    let isTrueSet;
+    if (getCookieValue("RandomPlaybackChecked") !== "") {
         isTrueSet = (getCookieValue("RandomPlaybackChecked") === 'true');
         document.getElementById('randomplayback').checked = isTrueSet;
     }
-    if (getCookieValue("autoplayChecked") != "") {
+    if (getCookieValue("autoplayChecked") !== "") {
         isTrueSet = (getCookieValue("autoplayChecked") === 'true');
         document.getElementById('autoplay').checked = isTrueSet;  
     }
     listCookies();
 }
 
-window.addEventListener("DOMContentLoaded", getCookies());
+window.addEventListener("DOMContentLoaded", () => getCookies());
