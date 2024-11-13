@@ -364,48 +364,21 @@ document.getElementById('cancelScanButton').addEventListener('click', function()
 });
 
 document.getElementById('randomplayback').addEventListener('click', function() {
-    document.cookie = "RandomPlaybackChecked=" + this.checked + ";max-age=2592000"; //30 Tage
-    listCookies();
+    localStorage.setItem('RandomPlaybackChecked', this.checked);
 });
 
 document.getElementById('autoplay').addEventListener('click', function() {
-    document.cookie = "autoplayChecked=" + this.checked + ";max-age=2592000"; //30 Tage
-    listCookies();
+    localStorage.setItem('autoplayChecked', this.checked);
 });
 
-document.getElementById('cookies').addEventListener('click', function() {
-    const cb = document.getElementById('cookies');
-    if (cb.checked === true) {
-        document.getElementById('cookielist').style.display = 'block';
-    }
-    else {
-        document.getElementById('cookielist').style.display = 'none';
-    }
-});
 
-function listCookies() {
-    document.getElementById("cookielist").innerHTML=document.cookie;
- }
-
-function getCookieValue(name) {
-    const regex = new RegExp(`(^| )${name}=([^;]+)`);
-    const match = document.cookie.match(regex);
-    if (match) {
-        return match[2];
-    }
+function loadSettings() {
+    const randomPlaybackChecked = localStorage.getItem('RandomPlaybackChecked') === 'true';
+    const autoplayChecked = localStorage.getItem('autoplayChecked') === 'true';
+    
+    document.getElementById('randomplayback').checked = randomPlaybackChecked;
+    document.getElementById('duration-input').style.display = randomPlaybackChecked ? 'block' : 'none';
+    document.getElementById('autoplay').checked = autoplayChecked;
 }
 
-function getCookies() {
-    let isTrueSet;
-    if (getCookieValue("RandomPlaybackChecked") !== "") {
-        isTrueSet = (getCookieValue("RandomPlaybackChecked") === 'true');
-        document.getElementById('randomplayback').checked = isTrueSet;
-    }
-    if (getCookieValue("autoplayChecked") !== "") {
-        isTrueSet = (getCookieValue("autoplayChecked") === 'true');
-        document.getElementById('autoplay').checked = isTrueSet;  
-    }
-    listCookies();
-}
-
-window.addEventListener("DOMContentLoaded", () => getCookies());
+window.addEventListener("DOMContentLoaded", () => loadSettings());
