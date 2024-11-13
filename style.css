@@ -7,10 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
     line-height: 1.6;
-    padding: 20px;
     text-align: center;
 }
 
@@ -76,9 +73,7 @@ body {
     transition: background 0.3s ease;
 }
 
-.cancelScanButton {
-    z-index: 20;
-}
+
 
 .button:hover {
     background: #004494;
@@ -123,22 +118,7 @@ body {
 }
 
 #qr-reader {
-    position: absolute; /* or absolute */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     z-index: 1; /* Ensure it's above other content */
-    background-color: #f4f4f4;
-}
-
-#qr-video {
-    display: inline-block;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
 }
 
 #videotitle {
@@ -153,18 +133,6 @@ body {
     display: none ;
 }
 
-#cancelScanButton {
-    position: absolute;
-    display:none;
-    background-color: #e95d5d;
-    color: black;
-    z-index: 4;
-}
-
 #cookielist {
     display: none;
-}
-
-#playback-duration {
-    width: 50px;
 }
