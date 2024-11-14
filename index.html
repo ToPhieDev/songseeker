@@ -30,7 +30,7 @@
 </head>
 
 <body>
-    <div class="hero bg-base-200 min-h-screen z-0">
+    <div class="hero bg-base-200 h-[90vh] z-0">
         <div class="hero-content text-center">
             <div class="max-w-md">
                 <h1 class="text-5xl font-bold">🎸 SongSeeker 🪇</h1>
@@ -41,8 +41,8 @@
                     Have fun guessing!
                 </p>
                 <div class="flex flex-col items-center justify-center">
-                    <label for="qr-modal" id="startScanButton" class="btn btn-primary button_startscan">Scan QR Code</label>
-                    <button id="startstop-video" class="button_startscan btn btn-secondary flex" style="display: none;">
+                    <label for="qr-modal" id="startScanButton" class="btn btn-primary button_width">Scan QR Code</label>
+                    <button id="startstop-video" class="button_width btn btn-secondary flex" style="display: none;">
                         <span id="loadingVideo" class="loading loading-ring loading-sm" style="display: none"></span>
                         <span id="startstop-text">Play</span>
                     </button>
@@ -62,7 +62,15 @@
             <label for="settings-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
             <div class="menu bg-base-200 text-base-content min-h-full w-80 p-4">
                 <!-- Sidebar content here -->
-                <h2 class="text-3xl text-start font-bold">Settings</h2>
+                <div class="flex justify-between">
+                    <h2 class="text-3xl text-start font-bold">Settings</h2>
+                    <label for="settings-drawer" class="btn btn-ghost p-2 w-[3rem]">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                             fill="currentColor">
+                            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                        </svg>
+                    </label>
+                </div>
                 <div class="flex flex-col p-4">
 
                     <h3 class="text-2xl text-start font-bold">Playing</h3>
@@ -108,7 +116,7 @@
             </div>
         </div>
     </div>
-    <footer class="footer bg-base-200 text-base-content border-base-300 border-t px-10 py-4 absolute bottom-0 z-[1]">
+    <footer class="footer bg-base-200 text-base-content flex justify-between border-base-300 border-t px-10 py-4 absolute bottom-0 z-[1] h-[10vh]">
         <aside class="grid-flow-col items-center">
             <svg
                     width="36"
