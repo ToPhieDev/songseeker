@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('decoded qr code:', result);
         if (result.data !== lastDecodedText) {
             lastDecodedText = result.data; // Update the last decoded text
-            handleScannedLink(result.data).then();
+            handleScannedLink(result.data)
         }
     }, { 
         highlightScanRegion: true,
