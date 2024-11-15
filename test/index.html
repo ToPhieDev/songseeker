@@ -1,24 +1,27 @@
 <div class="video">
-    <a href="#" class="play">Play</a>
+    <a href="#" class="play">Plays</a>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/pqLVAeoRavo?enablejsapi=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>
 </div>
 
 <script>
     (function() {
-        var player;
-        window.onYouTubeIframeAPIReady = function() {
+        var playMyVideo;
+        window.onYouTubeIframeAPIReady = function () {
             new YT.Player(document.querySelector('.video iframe'), {
                 events: {
-                    onReady: function(e) {
-                        player = e.target
+                    onReady: function (e) {
+                        playMyVideo = function () {
+                            var player = e.target
+                            player.playVideo()
+                        }
                     }
                 }
             })
         }
 
-        document.querySelector('.video .play').addEventListener('click', function(e) {
+        document.querySelector('.video .play').addEventListener('click', function (e) {
             e.preventDefault()
-            player.playVideo()
+            playMyVideo()
         })
     })()
 </script>
