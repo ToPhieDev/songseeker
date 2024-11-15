@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const video = document.getElementById('qr-video');
 
-    qrScanner = new QrScanner(video, result => {
-        console.log('decoded qr code:', result);
-        if (result.data !== lastDecodedText) {
-            lastDecodedText = result.data; // Update the last decoded text
-            handleScannedLink(result.data)
-        }
-    }, { 
+    qrScanner = new QrScanner(video, async result => {
+            console.log('decoded qr code:', result);
+            if (result.data !== lastDecodedText) {
+                lastDecodedText = result.data; // Update the last decoded text
+                await handleScannedLink(result.data)
+            }
+        }, {
         highlightScanRegion: true,
         highlightCodeOutline: true,
     }
