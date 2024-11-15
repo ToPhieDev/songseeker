@@ -11,10 +11,6 @@ body {
     text-align: center;
 }
 
-.button_width {
-    width: 15em;
-}
-
 #startstop-video,
 #loadingVideo,
 #duration-input,
