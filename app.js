@@ -345,18 +345,15 @@ document.getElementById('startScanButton').addEventListener('click', function() 
 
 document.getElementById('songinfo').addEventListener('click', function() {
     const cb = document.getElementById('songinfo');
-    const videoid = document.getElementById('videoid');
-    const videotitle = document.getElementById('videotitle');
-    const videoduration = document.getElementById('videoduration');
-    if(cb.checked === true){
-        videoid.style.display = 'block';
-        videotitle.style.display = 'block';
-        videoduration.style.display = 'block';
-    } else {
-        videoid.style.display = 'none';
-        videotitle.style.display = 'none';
-        videoduration.style.display = 'none';
-    }
+    const elements = document.querySelectorAll('.songinfo'); // Alle Elemente mit der Klasse "songinfo" auswählen
+
+    elements.forEach(function(element) {
+        if (cb.checked === true) {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    });
 });
 
 document.getElementById('cancelScanButton').addEventListener('click', function() {

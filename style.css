@@ -28,18 +28,6 @@ body {
     background: #004494;
 }
 
-#qr-reader {
-    z-index: 1; /* Ensure it's above other content */
-}
-
-#videotitle {
-    display:  none;
-}
-
-#videoduration {
-    display:  none;
-}
-
-#videoid {
-    display: none ;
+.songinfo {
+    display: none;
 }
