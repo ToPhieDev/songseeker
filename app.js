@@ -261,13 +261,14 @@ function formatDuration(duration) {
 document.getElementById('startstop-video').addEventListener('click', function() {
     const textElem = document.getElementById("startstop-text")
     if (textElem.innerHTML === "Play") {
-        textElem.innerHTML = "Stop";
         if (document.getElementById('randomplayback').checked === true) {
             playVideoAtRandomStartTime();
         }
         else {
             player.playVideo();
         }
+
+        textElem.innerHTML = "Stop";
     }
     else {
         this.innerHTML = "Play";
