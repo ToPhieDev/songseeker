@@ -41,8 +41,8 @@
                 </p>
                 <div class="flex flex-col items-center justify-center gap-4 p-1">
                     <label for="qr-modal" id="startScanButton" class="btn btn-primary button_width">Scan QR Code</label>
-                    <button id="startstop-video" class="button_width btn btn-secondary flex" style="display: none">
-                        <span id="loadingVideo" class="loading loading-ring loading-sm" style="display: none"></span>
+                    <button id="startstop-video" class="button_width btn btn-secondary flex">
+                        <span id="loadingVideo" class="loading loading-ring loading-sm"></span>
                         <span id="startstop-text">Play</span>
                     </button>
                 </div>
@@ -84,8 +84,7 @@
                             <input id="randomplayback" name="randomplayback" type="checkbox"
                                    class="toggle toggle-primary"/>
                         </label>
-                        <label id="duration-input" class="form-control w-full max-w-xs"
-                               style="display: none;">
+                        <label id="duration-input" class="form-control w-full max-w-xs">
                             <div class="label">
                                 <span class="label-text">Duration (seconds)</span>
                             </div>

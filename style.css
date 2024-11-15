@@ -11,23 +11,13 @@ body {
     text-align: center;
 }
 
-.qr-reader,
-.video-player {
-    background: #ffffff;
-    margin: 20px 0;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
 .button_width {
     width: 15em;
 }
 
-.button:hover {
-    background: #004494;
-}
-
+#startstop-video,
+#loadingVideo,
+#duration-input,
 .songinfo {
     display: none;
 }
