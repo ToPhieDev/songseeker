@@ -243,6 +243,7 @@ function onPlayerStateChange(event) {
     }
     else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         document.getElementById('startstop-video').style.display = "flex";
+        document.getElementById('loadingVideo').style.display = "none";
     }
     else if (event.data === YT.PlayerState.BUFFERING) {
         document.getElementById('loadingVideo').style.display = "block";
