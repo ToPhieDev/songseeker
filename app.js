@@ -244,7 +244,6 @@ function onPlayerStateChange(event) {
     }
     else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         document.getElementById('startstop-video').style.display = "flex";
-        document.getElementById('loadingVideo').style.display = "none";
     }
     else if (event.data === YT.PlayerState.BUFFERING) {
         document.getElementById('loadingVideo').style.display = "block";
@@ -272,7 +271,7 @@ document.getElementById('startstop-video').addEventListener('click', function() 
         textElem.innerHTML = "Stop";
     }
     else {
-        this.innerHTML = "Play";
+        textElem.innerHTML = "Play";
         player.pauseVideo();
     }
 });
