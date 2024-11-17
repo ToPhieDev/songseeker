@@ -6,6 +6,8 @@ let playbackDuration = 30; // Default playback duration
 let qrScanner;
 let csvCache = {};
 
+const versionNumber = "0.0.1";
+
 document.addEventListener('DOMContentLoaded', function () {
 
     let lastDecodedText = ""; // Store the last decoded text
@@ -280,8 +282,14 @@ function writeCopyrightYear() {
     const date = new Date();
     document.getElementById('copyrightYear').textContent = date.getFullYear().toString();
 }
+function writeVersionNumber() {
+    document.getElementById('version-number').textContent = versionNumber;
+}
 
-window.onload = ()=> writeCopyrightYear();
+window.onload = ()=> {
+    writeCopyrightYear();
+    writeVersionNumber();
+};
 
 function playVideoAtRandomStartTime() {
     const minStartPercentage = 0.10;

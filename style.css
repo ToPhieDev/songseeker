@@ -17,3 +17,16 @@ body {
 .songinfo {
     display: none;
 }
+
+.drawer-position {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    width: auto !important;
+    margin: 1rem;
+}
+
+.github-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+}
