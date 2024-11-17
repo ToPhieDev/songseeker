@@ -6,7 +6,7 @@ let playbackDuration = 30; // Default playback duration
 let qrScanner;
 let csvCache = {};
 
-const versionNumber = "0.0.1";
+const versionNumber = "0.0.2";
 
 document.addEventListener('DOMContentLoaded', function () {
 
