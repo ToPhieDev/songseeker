@@ -228,6 +228,10 @@ function onPlayerStateChange(event) {
         document.getElementById('video-title').textContent = videoData.title;
         const duration = player.getDuration();
         document.getElementById('video-duration').textContent = formatDuration(duration);
+        
+        // Sync play-button
+        document.getElementById('startstop-text').innerHTML = "Play";
+        
         // Check for Autoplay
         if (document.getElementById('autoplay').checked === true) {
             document.getElementById('startstop-text').innerHTML = "Stop";
@@ -242,13 +246,16 @@ function onPlayerStateChange(event) {
     else if (event.data === YT.PlayerState.PLAYING) {
         document.getElementById('startstop-video').style.display = "flex";
         document.getElementById('loadingVideo').style.display = "none";
+        document.getElementById('startstop-text').innerHTML = "Stop";
 
     }
     else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         document.getElementById('startstop-video').style.display = "flex";
+        document.getElementById('startstop-text').innerHTML = "Play";
     }
     else if (event.data === YT.PlayerState.BUFFERING) {
         document.getElementById('loadingVideo').style.display = "block";
+        document.getElementById('startstop-text').innerHTML = "Loading";
     } 
 }
 
@@ -263,17 +270,14 @@ function formatDuration(duration) {
 document.getElementById('startstop-video').addEventListener('click', function() {
     const textElem = document.getElementById("startstop-text")
     if (textElem.innerHTML === "Play") {
-        if (document.getElementById('randomplayback').checked === true) {
+        if (document.getElementById('randomplayback').checked) {
             playVideoAtRandomStartTime();
         }
         else {
             player.playVideo();
         }
-
-        textElem.innerHTML = "Stop";
     }
     else {
-        textElem.innerHTML = "Play";
         player.pauseVideo();
     }
 });
