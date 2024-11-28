@@ -6,7 +6,15 @@ let playbackDuration = 30; // Default playback duration
 let qrScanner;
 let csvCache = {};
 
-const versionNumber = "0.0.6";
+const PlayerState = {
+    PLAYING: 'playing',
+    PAUSED: 'paused',
+    LOADING: 'loading',
+}
+
+let currentPlayerState = PlayerState.PAUSED;
+
+const versionNumber = "0.0.7";
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -21,16 +29,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 await handleScannedLink(result.data)
             }
         }, {
-        highlightScanRegion: true,
-        highlightCodeOutline: true,
-    }
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+        }
     );
-    
+
     // Function to determine the type of link and act accordingly
     async function handleScannedLink(decodedText) {
-        let youtubeURL = "";
+        let youtubeURL = await getYouTubeUrl(decodedText);
+        console.log(`YouTube Video URL: ${youtubeURL}`);
+
+        const youtubeLinkData = parseYoutubeLink(youtubeURL);
+        if (youtubeLinkData) {
+            qrScanner.stop(); // Stop scanning after a result is found
+            lastDecodedText = ""; // Reset the last decoded text
+            document.getElementById('video-id').textContent = youtubeLinkData.videoId;
+
+            document.getElementById('qr-modal').checked = false; // Close the modal
+
+            console.log(youtubeLinkData.videoId);
+            player.cueVideoById(youtubeLinkData.videoId, youtubeLinkData.startTime || 0);
+        }
+    }
+
+    async function getYouTubeUrl(decodedText) {
         if (isYoutubeLink(decodedText)) {
-            youtubeURL = decodedText;
+            return decodedText;
         } else if (isHitsterLink(decodedText)) {
             const hitsterData = parseHitsterUrl(decodedText);
             if (hitsterData) {
@@ -41,33 +65,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (youtubeLink) {
                         // Handle YouTube link obtained from the CSV
                         console.log(`YouTube Link from CSV: ${youtubeLink}`);
-                        youtubeURL = youtubeLink;
+                        return youtubeLink;
                         // Example: player.cueVideoById(parseYoutubeLink(youtubeLink).videoId);
                     }
                 } catch (error) {
-                  console.error("Failed to fetch CSV:", error);
+                    console.error("Failed to fetch CSV:", error);
                 }
-            }
-            else {
+            } else {
                 console.log("Invalid Hitster URL:", decodedText);
             }
         }
-
-        console.log(`YouTube Video URL: ${youtubeURL}`);
-
-        const youtubeLinkData = parseYoutubeLink(youtubeURL);
-        if (youtubeLinkData) {
-            qrScanner.stop(); // Stop scanning after a result is found
-            document.getElementById('qr-modal').checked = false; // Close the modal
-            lastDecodedText = ""; // Reset the last decoded text
-
-            document.getElementById('video-id').textContent = youtubeLinkData.videoId;  
-
-            console.log(youtubeLinkData.videoId);
-            player.cueVideoById(youtubeLinkData.videoId, youtubeLinkData.startTime || 0);   
-            
-        }
-        
     }
 
     function isHitsterLink(url) {
@@ -89,13 +96,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // Hitster URL is in the format: https://www.hitstergame.com/{lang}/{id}
             // lang can be things like "en", "de", "pt", etc., but also "de/aaaa0007"
             const processedLang = match[1].replace(/\//g, "-");
-            return { lang: processedLang, id: match[2] };
+            return {lang: processedLang, id: match[2]};
         }
         const regex_nordics = /^(?:http:\/\/|https:\/\/)?app.hitster(nordics).com\/resources\/songs\/(\d+)$/;
         const match_nordics = url.match(regex_nordics);
         if (match_nordics) {
             // Hitster URL can also be in the format: https://app.hitsternordics.com/resources/songs/{id}
-            return { lang: match_nordics[1], id: match_nordics[2] };
+            return {lang: match_nordics[1], id: match_nordics[2]};
         }
         return null;
     }
@@ -131,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let startValueIdx = 0;
             let inQuotes = false;
             for (let i = 0; i < line.length; i++) {
-                if (line[i] === '"' && line[i-1] !== '\\') {
+                if (line[i] === '"' && line[i - 1] !== '\\') {
                     inQuotes = !inQuotes;
                 } else if (line[i] === ',' && !inQuotes) {
                     result.push(line.substring(startValueIdx, i).trim().replace(/^"(.*)"$/, '$1'));
@@ -156,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function parseYoutubeLink(url) {
         // First, ensure that the URL is decoded (handles encoded URLs)
         url = decodeURIComponent(url);
-    
+
         const regex = /^https?:\/\/(www\.youtube\.com\/watch\?v=|youtu\.be\/|music\.youtube\.com\/watch\?v=)(.{11}).*/;
         const match = url.match(regex);
         if (match) {
@@ -164,19 +171,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const videoId = match[2];
             let startTime = queryParams.get('start') || queryParams.get('t');
             const endTime = queryParams.get('end');
-    
+
             // Normalize and parse 't' and 'start' parameters
             startTime = normalizeTimeParameter(startTime);
             const parsedEndTime = normalizeTimeParameter(endTime);
-    
-            return { videoId, startTime, endTime: parsedEndTime };
+
+            return {videoId, startTime, endTime: parsedEndTime};
         }
         return null;
     }
-    
+
     function normalizeTimeParameter(timeValue) {
         if (!timeValue) return null; // Return null if timeValue is falsy
-    
+
         // Handle time formats (e.g., 't=1m15s' or '75s')
         let seconds;
         if (timeValue.endsWith('s')) {
@@ -185,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Additional parsing can be added here for 'm', 'h' formats if needed
             seconds = parseInt(timeValue, 10);
         }
-    
+
         return isNaN(seconds) ? null : seconds;
     }
 });
@@ -202,6 +209,7 @@ function onYouTubeIframeAPIReady() {
         }
     });
 }
+
 window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
 // Load the YouTube IFrame API script
@@ -221,40 +229,40 @@ function onPlayerStateChange(event) {
     document.getElementById('startstop-video').style.display = "flex";
 
     if (event.data === YT.PlayerState.CUED) {
+        currentPlayerState = PlayerState.PAUSED;
         // Display title and duration
         const videoData = player.getVideoData();
         document.getElementById('video-title').textContent = videoData.title;
         const duration = player.getDuration();
         document.getElementById('video-duration').textContent = formatDuration(duration);
-        
+
         // Sync play-button
         document.getElementById('startstop-text').innerHTML = "Play";
-        
+
         // Check for Autoplay
         if (document.getElementById('autoplay').checked === true) {
             document.getElementById('startstop-text').innerHTML = "Stop";
             if (document.getElementById('randomplayback').checked === true) {
                 playVideoAtRandomStartTime();
-            }
-            else {
-            player.playVideo();
+            } else {
+                player.playVideo();
             }
         }
-    }
-    else if (event.data === YT.PlayerState.PLAYING) {
+    } else if (event.data === YT.PlayerState.PLAYING) {
+        currentPlayerState = PlayerState.PLAYING;
         document.getElementById('startstop-video').style.display = "flex";
         document.getElementById('loadingVideo').style.display = "none";
         document.getElementById('startstop-text').innerHTML = "Stop";
 
-    }
-    else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+        currentPlayerState = PlayerState.PAUSED;
         document.getElementById('startstop-video').style.display = "flex";
         document.getElementById('startstop-text').innerHTML = "Play";
-    }
-    else if (event.data === YT.PlayerState.BUFFERING) {
+    } else if (event.data === YT.PlayerState.BUFFERING) {
+        currentPlayerState = PlayerState.LOADING;
         document.getElementById('loadingVideo').style.display = "block";
         document.getElementById('startstop-text').innerHTML = "Loading";
-    } 
+    }
 }
 
 // Helper function to format duration from seconds to a more readable format
@@ -265,17 +273,14 @@ function formatDuration(duration) {
 }
 
 // Add event listeners to Play and Stop buttons
-document.getElementById('startstop-video').addEventListener('click', function() {
-    const textElem = document.getElementById("startstop-text")
-    if (textElem.innerHTML === "Play") {
+document.getElementById('startstop-video').addEventListener('click', function () {
+    if (currentPlayerState === PlayerState.PAUSED) {
         if (document.getElementById('randomplayback').checked) {
             playVideoAtRandomStartTime();
-        }
-        else {
+        } else {
             player.playVideo();
         }
-    }
-    else {
+    } else {
         player.pauseVideo();
     }
 });
@@ -284,11 +289,12 @@ function writeCopyrightYear() {
     const date = new Date();
     document.getElementById('copyrightYear').textContent = date.getFullYear().toString();
 }
+
 function writeVersionNumber() {
     document.getElementById('version-number').textContent = versionNumber;
 }
 
-window.onload = ()=> {
+window.onload = () => {
     writeCopyrightYear();
     writeVersionNumber();
 };
@@ -332,14 +338,14 @@ function playVideoAtRandomStartTime() {
     }, (endTime - startTime) * 1000); // Convert to milliseconds
 }
 
-document.getElementById('randomplayback').addEventListener('change', function() {
+document.getElementById('randomplayback').addEventListener('change', function () {
     document.getElementById('duration-input').style.display = this.checked ? 'block' : 'none';
 });
 
 // Assuming you have an element with the ID 'qr-reader' for the QR scanner
 document.getElementById('qr-reader').style.display = 'none'; // Initially hide the QR Scanner
 
-document.getElementById('startScanButton').addEventListener('click', function() {
+document.getElementById('startScanButton').addEventListener('click', function () {
     document.getElementById('cancelScanButton').style.display = 'inline-flex';
     document.getElementById('scan-modal').style.display = 'grid'; // Show the modal
     document.getElementById('qr-reader').style.display = 'block'; // Show the scanner
@@ -353,11 +359,11 @@ document.getElementById('startScanButton').addEventListener('click', function() 
     });
 });
 
-document.getElementById('songinfo').addEventListener('click', function() {
+document.getElementById('songinfo').addEventListener('click', function () {
     const cb = document.getElementById('songinfo');
     const elements = document.querySelectorAll('.songinfo'); // Alle Elemente mit der Klasse "songinfo" auswählen
 
-    elements.forEach(function(element) {
+    elements.forEach(function (element) {
         if (cb.checked === true) {
             element.style.display = 'block';
         } else {
@@ -366,17 +372,17 @@ document.getElementById('songinfo').addEventListener('click', function() {
     });
 });
 
-document.getElementById('cancelScanButton').addEventListener('click', function() {
+document.getElementById('cancelScanButton').addEventListener('click', function () {
     qrScanner.stop(); // Stop scanning after a result is found
     document.getElementById('qr-reader').style.display = 'none'; // Hide the scanner after successful scan
     document.getElementById('cancelScanButton').style.display = 'none'; // Hide the cancel-button
 });
 
-document.getElementById('randomplayback').addEventListener('click', function() {
+document.getElementById('randomplayback').addEventListener('click', function () {
     localStorage.setItem('RandomPlaybackChecked', this.checked);
 });
 
-document.getElementById('autoplay').addEventListener('click', function() {
+document.getElementById('autoplay').addEventListener('click', function () {
     localStorage.setItem('autoplayChecked', this.checked);
 });
 
@@ -384,7 +390,7 @@ document.getElementById('autoplay').addEventListener('click', function() {
 function loadSettings() {
     const randomPlaybackChecked = localStorage.getItem('RandomPlaybackChecked') === 'true';
     const autoplayChecked = localStorage.getItem('autoplayChecked') === 'true';
-    
+
     document.getElementById('randomplayback').checked = randomPlaybackChecked;
     document.getElementById('duration-input').style.display = randomPlaybackChecked ? 'block' : 'none';
     document.getElementById('autoplay').checked = autoplayChecked;
