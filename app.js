@@ -6,7 +6,7 @@ let playbackDuration = 30; // Default playback duration
 let qrScanner;
 let csvCache = {};
 
-const versionNumber = "0.0.5";
+const versionNumber = "0.0.6";
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const youtubeLinkData = parseYoutubeLink(youtubeURL);
         if (youtubeLinkData) {
             qrScanner.stop(); // Stop scanning after a result is found
-            document.getElementById('close-scan-modal').click(); // Close the modal
+            document.getElementById('qr-modal').checked = false; // Close the modal
             lastDecodedText = ""; // Reset the last decoded text
 
             document.getElementById('video-id').textContent = youtubeLinkData.videoId;  
