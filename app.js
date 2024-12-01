@@ -238,6 +238,7 @@ function onPlayerStateChange(event) {
 
         // Sync play-button
         document.getElementById('startstop-text').innerHTML = "Play";
+        document.getElementById('loadingVideo').style.display = "none";
 
         // Check for Autoplay
         if (document.getElementById('autoplay').checked === true) {
